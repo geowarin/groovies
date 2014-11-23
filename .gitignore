@@ -1,0 +1,9 @@
+# Intellij
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Mac
+.DS_Store
+atlassian-ide-plugin.xml

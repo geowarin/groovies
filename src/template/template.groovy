@@ -9,7 +9,7 @@ template.run()
 
 class PowerTemplate {
   def cli
-  File template
+  def template = System.in.newReader()
   def output
   File[] bindingFiles
 
@@ -23,8 +23,7 @@ class PowerTemplate {
         return proc.in.text
       }
     ]
-    def engine = new SimpleTemplateEngine()
-    def template = engine.createTemplate(template.text).make(binding)
+    def template = new SimpleTemplateEngine().createTemplate(template.text).make(binding)
     output.class == File && output.exists() && output.delete()
     output << template.toString()
   }
@@ -39,26 +38,28 @@ class PowerTemplate {
     cli = new CliBuilder(
       formatter: new MyHelp(),
       header: 'Power Template® by geowarin.',
-      usage: 'template -f [file] (-o outputFile) (-v values1.json values2.json)',
+      usage: 'template (-f file) (-o outputFile) (-v values1.json values2.json)',
       footer: '''
 Use the power of groovy to templatize a file.
-It can contain values within ${}.
-You can use any groovy expressions.
+If file no file parameter present, the template will be read from standard input.
+It can contain values within ${}. You can use any groovy expressions.
 
 You can use json files to put values into the template.
 Use ${env['someProperty']} to access environment variables.
 Use ${cmd('command')} to include the output of a command.
 ''')
-    cli.f(args: 1, argName: 'file', 'The file to templatize', required: true)
+    cli.f(args: 1, argName: 'file', 'The file to templatize')
     cli.o(args: 1, argName: 'output', 'Optional. Redirect the result to a file')
     cli.v(args: -2, argName: 'vars', 'Optional. Point to one or several json files to put values into the template')
     OptionAccessor options = cli.parse(args)
     options || System.exit(1)
 
-    template = new File(options.f)
-    template.exists() || exitWithMessage("File not found ${template}")
+    if (options.f) {
+      template = new File(options.f)
+      template.exists() || exitWithMessage("File not found ${template}")
+    }
     output = options.o ? new File(options.o) : System.out
-    bindingFiles = options.vs.collect { new File(it) }
+    bindingFiles = options.vs ? options.vs.collect { new File(it) } : []
   }
 
   void exitWithMessage(String message) {
