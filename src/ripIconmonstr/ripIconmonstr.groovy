@@ -15,6 +15,7 @@ def url = 'http://iconmonstr.com/collection/'
 def icons = 0
 def nbIcons = 2651
 def downloadDir = new File(System.getProperty("user.home"), '/icons')
+def type = 'svg'
 
 Browser.drive() {
   go url
@@ -30,16 +31,19 @@ Browser.drive() {
 
       try {
         def filesBefore = downloadDir.listFiles()
-        clickOn(driver, '#checkbox-png')
+        clickOn(driver, "li.tab-$type")
+        clickOn(driver, "#checkbox-$type")
         sleep 20
-        clickOn(driver, 'input#btn-png')
-        waitFor { $('input#btng') }
-        clickOn(driver, 'input#btng')
+        clickOn(driver, "input#btn-$type")
+        if (type == 'png') {
+          waitFor { $('input#btng') }
+          clickOn(driver, 'input#btng')
+        }
 //        println "dowloaded icon $link"
         waitForDownload(filesBefore, downloadDir)
         showProgress(++icons, nbIcons, 50)
       } catch (Exception ignored) {
-//        System.err.println("Could not download $link, we'll retry later")
+        System.err.println("Could not download $link, we'll retry later")
         links.push(link)
       }
 
