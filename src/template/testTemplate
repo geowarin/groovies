@@ -1,0 +1,4 @@
+${ env['PATH'].split(':').findAll { it =~ '(?i)ruby'} }
+${ cmd('uname') }
+
+${greetings} ${firstName} ${lastName}
