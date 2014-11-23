@@ -48,11 +48,12 @@ You can use json files to put values into the template.
 Use ${env['someProperty']} to access environment variables.
 Use ${cmd('command')} to include the output of a command.
 ''')
+    cli.help('print this message')
     cli.f(args: 1, argName: 'file', 'The file to templatize')
     cli.o(args: 1, argName: 'output', 'Optional. Redirect the result to a file')
     cli.v(args: -2, argName: 'vars', 'Optional. Point to one or several json files to put values into the template')
     OptionAccessor options = cli.parse(args)
-    options || System.exit(1)
+    options.help && exitWithMessage()
 
     if (options.f) {
       template = new File(options.f)
@@ -62,8 +63,8 @@ Use ${cmd('command')} to include the output of a command.
     bindingFiles = options.vs ? options.vs.collect { new File(it) } : []
   }
 
-  void exitWithMessage(String message) {
-    System.err.println(message)
+  void exitWithMessage(String message = null) {
+    message && System.err.println(message)
     cli.usage()
     System.exit(1)
   }
