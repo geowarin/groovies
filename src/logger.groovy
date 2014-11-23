@@ -1,14 +1,9 @@
 #!/usr/bin/env groovy
-
 @Grapes(
   @Grab('log4j:log4j:1.2.17')
 )
-import groovy.util.logging.Log4j
 import org.apache.log4j.Level
-
-class Output {
-  static Level level = Level.DEBUG;
-}
+import org.apache.log4j.Logger
 
 abstract class DefaultAppendable implements Appendable {
 
@@ -33,21 +28,21 @@ abstract class DefaultAppendable implements Appendable {
   abstract void write(String s)
 }
 
-@Log4j
 class LogAppendable extends DefaultAppendable {
-  public Level level
-  LogAppendable() {
-    log.level = Output.level
-//    log.addAppender(new FileAppender(new TTCCLayout(), 'myscript.log'));
-  }
+  Level level
 
   @Override
   void write(String s) {
     if (s.trim())
-      log.log(level, s)
+      Logger.rootLogger.log(level, s)
   }
 }
 
-Output.level = Level.INFO
+Logger.rootLogger.level = Level.DEBUG
+// Optional : configure appenders
+//Logger.rootLogger.removeAllAppenders()
+//Logger.rootLogger.addAppender new ConsoleAppender([layout: new PatternLayout('%m%n'), writer: System.out.newWriter()])
+//Logger.rootLogger.addAppender new FileAppender(new TTCCLayout(), 'myscript.log')
+
 Process proc = ['ls', '-l'].execute()
 proc.waitForProcessOutput(new LogAppendable([level: Level.DEBUG]), new LogAppendable([level: Level.ERROR]))
